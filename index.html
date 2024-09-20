@@ -1,0 +1,56 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Message</title>
+    </head>
+    <body>
+        
+        <script>
+            let myString = "Hello";
+        // TODO: Add hello code
+            function getMessage(name) {
+                return `${myString}, ${name}...`;
+            }
+            const message = getMessage('Ornella');
+            document.write(message);
+
+
+        // TODO: Add setTimeout code
+            setTimeout(
+                () => { document.write(`...${myString} again!`)},
+                2000
+            );
+            // setInterval(
+            //     () => document.write("똑딱"),2500
+            // );
+            // setTimeout(
+            //     () => {document.write("이제 그만")},
+            //     5000
+            // );
+
+            function introduceName(name="SM"){
+                return `저는 ${name}입니다.`;
+            }
+            function introduceMajor(major="컴퓨터공학과"){
+                return `저의 전공은 ${major}입니다.`;
+            }
+            function introduceCountry(country="대한민국"){
+                return `저는 ${country}사람입니다.`;
+            }
+            const instruction = [introduceName,introduceMajor,introduceCountry];
+            let idx =0;
+
+            
+            
+            setInterval(() => {
+                
+                document.body.innerHTML = instruction[idx]();
+
+                
+                idx = (idx + 1) % instruction.length;
+            }, 3000);
+            
+        </script>
+    </body>
+</html>
