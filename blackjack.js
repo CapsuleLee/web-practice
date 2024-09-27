@@ -13,7 +13,7 @@ sum += cardThree;
 if (sum > 21){
     console.log(`You have ${sum} points`);
     console.log("You lost");
-    return
+    return;
 } else if (sum ===21){
     console.log(`You have ${sum} points`);
     console.log("You win");
@@ -30,11 +30,11 @@ while (bankSum<17){
 console.log(`Bank have ${bankSum} points`);
 if (bankSum>21){
     console.log("You win");
-    return
+    return;
 }
 if (bankSum === sum){
     console.log("Draw");
-    return
+    return;
 }
 
 
