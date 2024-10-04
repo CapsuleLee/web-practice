@@ -26,6 +26,8 @@ h1 {
         position: relative;
         height: 13%;
         left: -10px;
+        display: flex;
+        justify-content: center;;
     }
     .plant {
         position: absolute;
@@ -67,7 +69,7 @@ h1 {
     }
     .dirt {
         width: 60%;
-        height: 5%;
+        height: 9%;
         background: #3a241d;
         position: absolute;
         border-radius: 0 0 1rem 1rem;
@@ -93,6 +95,14 @@ h1 {
         position: absolute;
         border-radius: 1rem 1rem 1rem 1rem;
         left: 1cm;
+    }
+    .plantInTerrarium{
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+        
+        
     }
        
     /* div {
