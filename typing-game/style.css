@@ -1,0 +1,19 @@
+
+.highlight {
+    background-color: yellow;
+}
+.error {
+    background-color: lightcoral;
+    border: red;
+}
+
+.sort {
+    
+    display: flex;
+    flex-direction: column; /* 수직으로 정렬 */
+    align-items: center; /* 왼쪽 정렬 */
+}
+
+#typed-value {
+    margin-bottom: 10px; /* 버튼과 인풋 박스 간의 간격 조정 */
+}
