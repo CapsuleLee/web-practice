@@ -24,6 +24,26 @@
                 <br>
                 <input type="text" id="region" required class="region-name" style="border-radius: 5px;"/>
             </div>
+            <form class="form-data" autocomplete="on">
+                <div>
+                    <h2>New? Add your Information</h2>
+                </div>
+                <div>
+                    <label for="region">Region Name</label>
+                    <!-- required class = null 값이면 필수라고 표시함 -->
+                    <br>
+                    <input type="text" id="region" required class="region-name" style="border-radius: 5px;"/>
+                </div>
+                <form class="form-data" autocomplete="on">
+                    <div>
+                        <h2>New? Add your Information</h2>
+                    </div>
+                    <div>
+                        <label for="region">Region Name</label>
+                        <!-- required class = null 값이면 필수라고 표시함 -->
+                        <br>
+                        <input type="text" id="region" required class="region-name" style="border-radius: 5px;"/>
+                    </div>
             <div>
                 <label for="api">Your API Key from tmrow</label><br>
                 <input type="text" id="api" required class="api-key" style="border-radius: 5px;" />
@@ -35,12 +55,23 @@
             <div class="loading">loading...</div>
             <div class="errors"></div>
             <div class="data"></div>
-            <div class="result-container">
+            <div class="result-container" id ="result">
                 <p><strong>Region: </strong><span class="my-region"></span></p>
                 <p><strong>Carbon Usage: </strong><span class="carbon-usage"></span></p>
                 <p><strong>Fossil Fuel Percentage: </strong><span class="fossil-fuel"></span></p>
             </div>
+            <!-- <div class="result-container" id ="result">
+                <p><strong>Region: </strong><span class="my-region"></span></p>
+                <p><strong>Carbon Usage: </strong><span class="carbon-usage"></span></p>
+                <p><strong>Fossil Fuel Percentage: </strong><span class="fossil-fuel"></span></p>
+            </div>
+            <div class="result-container" id ="result">
+                <p><strong>Region: </strong><span class="my-region"></span></p>
+                <p><strong>Carbon Usage: </strong><span class="carbon-usage"></span></p>
+                <p><strong>Fossil Fuel Percentage: </strong><span class="fossil-fuel"></span></p> -->
+            </div>
             <button class="clear-btn">Change region</button>
         </div>
+        <script src="main.js"></script>
     </body>
  </html>
