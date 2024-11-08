@@ -81,7 +81,7 @@ async function displayCarbonUsage(apiKey, region, resultId) {
             Math.round(response.data.data.carbonIntensity) + ' grams';
         dataContainer.querySelector('.fossil-fuel').textContent =
             response.data.data.fossilFuelPercentage.toFixed(2) + '%';
-        
+        form.style.display='none'
         resultDiv.style.display = 'block';  // 결과 창 보이기
     } catch (error) {
         console.error(error);
