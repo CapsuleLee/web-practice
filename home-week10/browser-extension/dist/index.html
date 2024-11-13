@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Carbon Trigger</title>
+    <link rel="stylesheet" href="./style.css" />
+</head>
+<body class="container">
+    <div class="img">
+        <img alt="plants and people" src="images/plants-people.png" />
+    </div>
+    
+    <div>
+        <h1>Welcome to Your Personal Carbon Trigger!</h1>
+    </div>
+
+    <!--form area-->
+    <form class="form-data" autocomplete="on">
+        <div>
+            <h2>New? Add your Information</h2>
+        </div>
+        <div>
+            <label for="region1">Region Name 1</label>
+            <input type="text" id="region1" required class="region-name" />
+        </div>
+        <div>
+            <label for="region2">Region Name 2</label>
+            <input type="text" id="region2" required class="region-name" />
+        </div>
+        <div>
+            <label for="region3">Region Name 3</label>
+            <input type="text" id="region3" required class="region-name" />
+        </div>
+        <div>
+            <label for="api">Your API Key from tmrow</label>
+            <input type="text" id="api" required class="api-key" />
+        </div>
+        <button type="submit" class="search-btn">Submit</button>
+    </form>
+
+    <!--result area-->
+    <div class="result" style="display: none;">
+        <div class="loading">loading...</div>
+        <div class="errors"></div>
+        <div id="result1" class="result-container">
+            <p><strong>Region 1: </strong><span class="my-region"></span></p>
+            <p><strong>Carbon Usage: </strong><span class="carbon-usage"></span></p>
+            <p><strong>Fossil Fuel Percentage: </strong><span class="fossil-fuel"></span></p>
+        </div>
+        <div id="result2" class="result-container">
+            <p><strong>Region 2: </strong><span class="my-region"></span></p>
+            <p><strong>Carbon Usage: </strong><span class="carbon-usage"></span></p>
+            <p><strong>Fossil Fuel Percentage: </strong><span class="fossil-fuel"></span></p>
+        </div>
+        <div id="result3" class="result-container">
+            <p><strong>Region 3: </strong><span class="my-region"></span></p>
+            <p><strong>Carbon Usage: </strong><span class="carbon-usage"></span></p>
+            <p><strong>Fossil Fuel Percentage: </strong><span class="fossil-fuel"></span></p>
+        </div>
+        <button class="clear-btn">Change region</button>
+    </div>
+    <div id="result1" class="result-container"></div>
+    <div id="result2" class="result-container"></div>
+    <div id="result3" class="result-container"></div>
+    <script src="main.js"></script>
+</body>
+</html>
+
