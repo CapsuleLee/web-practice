@@ -18,7 +18,6 @@ const usage = document.querySelector('.carbon-usage');
 const fossilfuel = document.querySelector('.fossil-fuel');
 const myregion = document.querySelector('.my-region');
 const clearBtn = document.querySelector('.clear-btn');
-const imageElement = document.querySelector(".img img");
 
 const calculateColor = async (value) => {
     let co2Scale = [0, 150, 600, 750, 800];
@@ -33,55 +32,9 @@ const calculateColor = async (value) => {
     console.log(scaleIndex, closestColor);
     chrome.runtime.sendMessage({ action: 'updateIcon', value: { color: closestColor } });
 };
-
-async function updateCharacterImage() {
-    try {
-        const response = await fetch("https://animechan.vercel.app/api/random");
-        
-        if (!response.ok) {
-            throw new Error(`Animechan API error: ${response.statusText}`);
-        }
-        
-        const animeData = await response.json();
-        const characterName = animeData.character;
-        const quote = animeData.quote;
-
-        const naverClientId = "oX9oQXBGeZu1D1lXyWYY"; // 네이버 클라이언트 ID로 교체
-        const naverClientSecret = "8T8sd7YTGn"; // 네이버 클라이언트 Secret으로 교체
-        const naverEndpoint = `https://openapi.naver.com/v1/search/image?query=${encodeURIComponent(characterName)}&display=1&start=1`;
-
-        const naverResponse = await fetch(naverEndpoint, {
-            headers: {
-                "X-Naver-Client-Id": naverClientId,
-                "X-Naver-Client-Secret": naverClientSecret
-            }
-        });
-
-        if (!naverResponse.ok) {
-            throw new Error(`Naver API error: ${naverResponse.statusText}`);
-        }
-
-        const naverData = await naverResponse.json();
-        if (naverData.items && naverData.items.length > 0) {
-            const imageUrl = naverData.items[0].link;
-            imageElement.src = imageUrl;
-        } else {
-            throw new Error("No images found in Naver API response");
-        }
-
-        document.querySelector("h1").innerText = `Welcome to ${characterName}'s World!`;
-        document.querySelector("div").innerHTML += `<p>${quote}</p>`;
-    } catch (error) {
-        console.error("Error fetching character image:", error);
-    }
-}
-
+   
 async function displayCarbonUsage(apiKey, region, resultId) {
     try {
-        if (!region) {
-            throw new Error(`Region is undefined`);
-        }
-
         const response = await axios.get('https://api.co2signal.com/v1/latest', {
             params: { countryCode: region },
             headers: { 'auth-token': apiKey }
@@ -93,12 +46,11 @@ async function displayCarbonUsage(apiKey, region, resultId) {
             Math.round(response.data.data.carbonIntensity) + ' grams';
         dataContainer.querySelector('.fossil-fuel').textContent =
             response.data.data.fossilFuelPercentage.toFixed(2) + '%';
-        
-        form.style.display = 'none';
-        resultDiv.style.display = 'block'; // 결과 창 보이기
+        form.style.display='none'
+        resultDiv.style.display = 'block';  // 결과 창 보이기
     } catch (error) {
-        console.error("Error fetching data:", error);
-        document.querySelector('.errors').textContent = `Error fetching data for ${region || 'unknown region'}`;
+        console.error(error);
+        document.querySelector('.errors').textContent = 'Error fetching data for ' + region;
     }
 }
 
@@ -109,27 +61,22 @@ function setUpUser(apiKey, regionName) {
     errors.textContent = '';
     clearBtn.style.display = 'block';
     displayCarbonUsage(apiKey, regionName);
-    updateCharacterImage();
  }
 
 
- function handleSubmit(e) {
+function handleSubmit(e) {
     e.preventDefault();
-    resultDiv.style.display = 'none'; // 초기에는 숨기기
+    resultDiv.style.display = 'none';  // 초기에는 숨기기
     document.querySelector('.errors').textContent = '';
 
     regions.forEach((regionInput, index) => {
         const regionName = regionInput.value;
         if (regionName) {
             displayCarbonUsage(apiKey.value, regionName, `result${index + 1}`);
-        } else {
-            console.error(`Region ${index + 1} is undefined`);
         }
     });
-
-    setUpUser(apiKey.value, regions.map(regionInput => regionInput.value).join(', '));
-}
-
+    setUpUser(apiKey.value, region.value);
+ }
 
 function init() {
     const storedApiKey = localStorage.getItem('apiKey');
@@ -161,7 +108,6 @@ function init() {
 function reset(e) {
     e.preventDefault();
     localStorage.removeItem('regionName');
-    
     init();
  }
 
@@ -169,3 +115,4 @@ function reset(e) {
 form.addEventListener('submit', (e) => handleSubmit(e));
 clearBtn.addEventListener('click', (e) => reset(e));
 init();
+
