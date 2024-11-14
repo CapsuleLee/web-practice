@@ -19,6 +19,8 @@ const fossilfuel = document.querySelector('.fossil-fuel');
 const myregion = document.querySelector('.my-region');
 const clearBtn = document.querySelector('.clear-btn');
 
+
+
 const calculateColor = async (value) => {
     let co2Scale = [0, 150, 600, 750, 800];
     let colors = ['#2AA364', '#F5EB4D', '#9E4229', '#381D02', '#381D02'];
@@ -46,8 +48,24 @@ async function displayCarbonUsage(apiKey, region, resultId) {
             Math.round(response.data.data.carbonIntensity) + ' grams';
         dataContainer.querySelector('.fossil-fuel').textContent =
             response.data.data.fossilFuelPercentage.toFixed(2) + '%';
-        form.style.display='none'
-        resultDiv.style.display = 'block';  // 결과 창 보이기
+        form.style.display = 'none';
+        resultDiv.style.display = 'block';
+
+        // Catboy API에서 이미지 가져오기
+        const catboyResponse = await axios.get('https://api.waifu.pics/sfw/waifu');
+        const imageUrl = catboyResponse.data.url;
+
+        // 이미지 요소 생성 및 결과 영역에 추가
+        const imageElement = document.createElement('img');
+        imageElement.src = imageUrl;
+        imageElement.alt = 'Anime character from Catboy API';
+        imageElement.className = 'character-image';
+
+        const existingImage = dataContainer.querySelector('.character-image');
+        if (existingImage) {
+            existingImage.remove();
+        }
+        dataContainer.appendChild(imageElement);
     } catch (error) {
         console.error(error);
         document.querySelector('.errors').textContent = 'Error fetching data for ' + region;
@@ -64,9 +82,11 @@ function setUpUser(apiKey, regionName) {
  }
 
 
-function handleSubmit(e) {
+// Modify handleSubmit to include character image update
+async function handleSubmit(e) {
     e.preventDefault();
-    resultDiv.style.display = 'none';  // 초기에는 숨기기
+
+    resultDiv.style.display = 'none';
     document.querySelector('.errors').textContent = '';
 
     regions.forEach((regionInput, index) => {
@@ -75,35 +95,25 @@ function handleSubmit(e) {
             displayCarbonUsage(apiKey.value, regionName, `result${index + 1}`);
         }
     });
-    setUpUser(apiKey.value, region.value);
- }
+}
 
 function init() {
     const storedApiKey = localStorage.getItem('apiKey');
     const storedRegion = localStorage.getItem('regionName');
-    //set icon to be generic green
-
-    chrome.runtime.sendMessage({
-        action: 'updateIcon',
-            value: {
-                color: 'green',
-            },
-     });
     
-    //todo
     if (storedApiKey === null || storedRegion === null) {
         form.style.display = 'block';
-        results.style.display = 'none';
+        resultDiv.style.display = 'none';
         loading.style.display = 'none';
-        clearBtn.style.display = 'none';
+        // clearBtn.style.display = 'none';
         errors.textContent = '';
     } else {
-        displayCarbonUsage(storedApiKey, storedRegion);
-        results.style.display = 'none';
-        form.style.display = 'none';
-        clearBtn.style.display = 'block';
+        regions.forEach((regionInput, index) => {
+            const regionName = regionInput.value;
+            displayCarbonUsage(storedApiKey, regionName, `result${index + 1}`);
+        });
     }
- };
+}
 
 function reset(e) {
     e.preventDefault();
@@ -115,4 +125,3 @@ function reset(e) {
 form.addEventListener('submit', (e) => handleSubmit(e));
 clearBtn.addEventListener('click', (e) => reset(e));
 init();
-
