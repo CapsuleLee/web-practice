@@ -2,7 +2,6 @@ import axios from 'axios';
 
 // form fields
 const form = document.querySelector('.form-data');
-// const region = document.querySelector('.region-name');
 const regions = [
     document.getElementById('region1'),
     document.getElementById('region2'),
@@ -12,29 +11,9 @@ const apiKey = document.querySelector('.api-key');
 // results
 const errors = document.querySelector('.errors');
 const loading = document.querySelector('.loading');
-// const results = document.querySelector('.result-container');
 const resultDiv = document.querySelector('.result');
-const usage = document.querySelector('.carbon-usage');
-const fossilfuel = document.querySelector('.fossil-fuel');
-const myregion = document.querySelector('.my-region');
 const clearBtn = document.querySelector('.clear-btn');
 
-
-
-const calculateColor = async (value) => {
-    let co2Scale = [0, 150, 600, 750, 800];
-    let colors = ['#2AA364', '#F5EB4D', '#9E4229', '#381D02', '#381D02'];
-    let closestNum = co2Scale.sort((a, b) => {
-    return Math.abs(a - value) - Math.abs(b - value);
-    })[0];
-    console.log(value + ' is closest to ' + closestNum);
-    let num = (element) => element > closestNum;
-    let scaleIndex = co2Scale.findIndex(num);
-    let closestColor = colors[scaleIndex];
-    console.log(scaleIndex, closestColor);
-    chrome.runtime.sendMessage({ action: 'updateIcon', value: { color: closestColor } });
-};
-   
 async function displayCarbonUsage(apiKey, region, resultId) {
     try {
         const response = await axios.get('https://api.co2signal.com/v1/latest', {
@@ -72,16 +51,6 @@ async function displayCarbonUsage(apiKey, region, resultId) {
     }
 }
 
-function setUpUser(apiKey, regionName) {
-    localStorage.setItem('apiKey', apiKey);
-    localStorage.setItem('regionName', regionName);
-    loading.style.display = 'block';
-    errors.textContent = '';
-    clearBtn.style.display = 'block';
-    displayCarbonUsage(apiKey, regionName);
- }
-
-
 // Modify handleSubmit to include character image update
 async function handleSubmit(e) {
     e.preventDefault();
@@ -105,7 +74,6 @@ function init() {
         form.style.display = 'block';
         resultDiv.style.display = 'none';
         loading.style.display = 'none';
-        // clearBtn.style.display = 'none';
         errors.textContent = '';
     } else {
         regions.forEach((regionInput, index) => {
