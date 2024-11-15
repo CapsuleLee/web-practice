@@ -31,7 +31,7 @@ async function displayCarbonUsage(apiKey, region, resultId) {
         resultDiv.style.display = 'block';
 
         // Catboy API에서 이미지 가져오기
-        const catboyResponse = await axios.get('https://api.waifu.pics/sfw/waifu');
+        const catboyResponse = await axios.get('https://api.waifu.pics/sfw/dance');
         const imageUrl = catboyResponse.data.url;
 
         // 이미지 요소 생성 및 결과 영역에 추가
