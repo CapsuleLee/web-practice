@@ -1,5 +1,4 @@
 
-
 function loadTexture(path) {
     return new Promise((resolve) => {
       const img = new Image();
@@ -59,10 +58,6 @@ window.onload = async() => {
     /4)+30,smallWidth,smallHeight);
     ctx.drawImage(heroImg, canvas.width/2 - 45+100, canvas.height - (canvas.height 
         /4)+30,smallWidth,smallHeight);
-
-    
-
-    
 
     createEnemies2(ctx, canvas, enemyImg);
 };
