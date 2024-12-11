@@ -19,8 +19,6 @@ class EventEmitter {
      }
     
   }
- 
-
 
 class GameObject {
     constructor(x, y) {
@@ -56,7 +54,7 @@ class Hero extends GameObject {
       this.cooldown = 0; // 초기화
       this.life = 3;
       this.points = 0;
-
+      
       }
     
     fire() {
@@ -84,8 +82,9 @@ class Hero extends GameObject {
      }
     
     incrementPoints() {
-      this.points += 100;
+      this.points += 50;
     }
+
   }
 
 class Enemy extends GameObject {
@@ -186,8 +185,85 @@ class SidekickHero extends GameObject {
     this.y = hero.y + 30;  // 주인공 비행선의 y 좌표 + 30 (아래쪽)
 }
 }
+class Boss extends GameObject {
+  constructor(x, y) {
+    super(x, y);
+    this.width = 500; // 보스 크기
+    this.height = 100;
+    this.type = "Boss";
+    this.health = 50; // 체력
+    this.img = bossImg; // 보스 이미지
+    this.cooldown = 0; // 레이저 발사 쿨다운 초기화
+    this.moveDirection = Math.random() < 0.5 ? -1 : 1; // 초기 방향 설정
 
+    // 좌우 이동 설정
+    setInterval(() => {
+      if (!this.dead) {
+        this.x += this.moveDirection * 10; // 좌우 이동
+        if (this.x <= 0 || this.x >= canvas.width - this.width) {
+          this.moveDirection *= -1; // 방향 반전
+        }
+      }
+    }, 100); // 100ms마다 이동
 
+    // 레이저 발사 설정
+    setInterval(() => {
+      if (!this.dead && this.canFire()) {
+        const laser = new BossLaser(this.x + this.width / 2 - 7, this.y + this.height);
+        gameObjects.push(laser); // 보스 레이저 추가
+        this.cooldown = 1000; // 1초 쿨다운
+        setTimeout(() => (this.cooldown = 0), this.cooldown);
+      }
+    }, 1000); // 1초마다 발사 시도
+  }
+
+  // 체력 감소 메서드
+  takeDamage() {
+    this.health -= 1;
+    if (this.health <= 0) {
+      this.dead = true; // 체력이 0이 되면 파괴
+      eventEmitter.emit(Messages.GAME_END_WIN); // 게임 승리 이벤트 발생
+    }
+  }
+
+  // 레이저 발사 가능 여부 확인
+  canFire() {
+    return this.cooldown === 0; // 쿨타임이 0이면 발사 가능
+  }
+}
+
+class BossLaser extends GameObject {
+  constructor(x, y) {
+    super(x, y);
+    this.width = 15; // 보스 레이저 폭
+    this.height = 45; // 보스 레이저 높이
+    this.type = "BossLaser"; // 보스 레이저 타입
+    this.img = bossLaserImg; // 보스 레이저 이미지
+    this.speed = 10; // 레이저 이동 속도
+
+    // 레이저가 아래로 이동
+    let id = setInterval(() => {
+      if (this.y < canvas.height) {
+        this.y += this.speed; // 아래로 이동
+      } else {
+        this.dead = true; // 화면 밖으로 나가면 제거
+        clearInterval(id);
+      }
+    }, 100); // 100ms 간격으로 이동
+  }
+}
+
+function createBoss() {
+  const boss = new Boss(canvas.width / 2 - 100, 50);
+  gameObjects.push(boss);
+}
+
+function drawStage() {
+  ctx.font = "30px Arial";
+  ctx.fillStyle = "white";
+  ctx.textAlign = "left";
+  drawText("Stage: " + stage, 10, 50);
+}
 
 function loadTexture(path) {
     return new Promise((resolve) => {
@@ -200,20 +276,40 @@ function loadTexture(path) {
 }
 
 
-function createEnemies() { //week13주차꺼
-  const MONSTER_TOTAL = 5;
-  const MONSTER_WIDTH = MONSTER_TOTAL * 98;
-  const START_X = (canvas.width - MONSTER_WIDTH) / 2;
-  const STOP_X = START_X + MONSTER_WIDTH;
-  for (let x = START_X; x < STOP_X; x += 98) {
-    for (let y = 0; y < 50 * 5; y += 50) {
+// function createEnemies() { //week13주차꺼
+//   const MONSTER_TOTAL = 5;
+//   const MONSTER_WIDTH = MONSTER_TOTAL * 98;
+//   const START_X = (canvas.width - MONSTER_WIDTH) / 2;
+//   const STOP_X = START_X + MONSTER_WIDTH;
+//   for (let x = START_X; x < STOP_X; x += 98) {
+//     for (let y = 0; y < 50 * 5; y += 50) {
+//       const enemy = new Enemy(x, y);
+//       enemy.img = enemyImg;
+//       gameObjects.push(enemy);
+//     }
+//   }
+//   console.log("Enemies created:", gameObjects.filter(go => go.type === "Enemy").length);
+//  }
+function createEnemies() {
+  const MONSTER_TOTAL = Math.min(5 + stage, 10); // 스테이지별로 적 수 증가
+  const MONSTER_SPEED = 5 + stage; // 스테이지별 속도 증가
+  const START_X = (canvas.width - MONSTER_TOTAL * 98) / 2;
+
+  for (let x = START_X; x < START_X + MONSTER_TOTAL * 98; x += 98) {
+    for (let y = 0; y < stage * 50; y += 50) {
       const enemy = new Enemy(x, y);
       enemy.img = enemyImg;
       gameObjects.push(enemy);
+
+      // 속도 설정
+      setInterval(() => {
+        if (!enemy.dead) {
+          enemy.y += MONSTER_SPEED;
+        }
+      }, 300);
     }
   }
- }
-
+}
 
 
 function createEnemies2(ctx, canvas, enemyImg) {
@@ -259,32 +355,41 @@ function createHero() {
 
   gameObjects.push(sidekick1, sidekick2);
  }
-
-
-
-
+ 
 function initGame() {
-    gameObjects = [];
-    createEnemies();
-    createHero();
     
-
-    eventEmitter.on(Messages.KEY_EVENT_UP, () => {
-        hero.y -=5 ;
-        
-    })
-    eventEmitter.on(Messages.KEY_EVENT_DOWN, () => {
-        hero.y += 5;
-        
-    });
-    eventEmitter.on(Messages.KEY_EVENT_LEFT, () => {
-        hero.x -= 5;
-        
-    });
-    eventEmitter.on(Messages.KEY_EVENT_RIGHT, () => {
-        hero.x += 5;
+    createHero();
+    if (stage%3==0){
       
-    });
+      createBoss();
+    } else{
+      createEnemies();
+     
+    }
+    window.addEventListener("keydown", (event) => {
+      keysPressed[event.key] = true;
+  });
+
+  window.addEventListener("keyup", (event) => {
+      keysPressed[event.key] = false;
+  });
+  
+  // 이동 처리
+  moveInterval = setInterval(() => {
+      if (keysPressed["ArrowUp"]) {
+          hero.y -= 10;
+      }
+      if (keysPressed["ArrowDown"]) {
+          hero.y += 10;
+      }
+      if (keysPressed["ArrowLeft"]) {
+          hero.x -= 10;
+      }
+      if (keysPressed["ArrowRight"]) {
+          hero.x += 10;
+      }
+  },50); 
+
     eventEmitter.on(Messages.KEY_EVENT_SPACE, () => {
       if (hero.canFire()) {
         hero.fire();
@@ -311,6 +416,7 @@ function initGame() {
       }
       if (isEnemiesDead()) {
         eventEmitter.emit(Messages.GAME_END_WIN);
+        stage++;
       }
    });
     eventEmitter.on(Messages.GAME_END_WIN, () => {
@@ -318,15 +424,14 @@ function initGame() {
    });
     eventEmitter.on(Messages.GAME_END_LOSS, () => {
       endGame(false);
-   });
-   
-  
-    
+   }); 
+
  }
 
 function updateGameObjects() {
   const enemies = gameObjects.filter(go => go.type === 'Enemy');
   const lasers = gameObjects.filter((go) => go.type === "Laser");
+  const boss = gameObjects.filter((go) => go.type === "Boss");
 
   gameObjects.forEach(go => {
     if (go.type === 'sidekick1') {
@@ -345,6 +450,21 @@ function updateGameObjects() {
       eventEmitter.emit(Messages.COLLISION_ENEMY_HERO, { enemy });
     }
   })
+  boss.forEach(boss=>{
+    const heroRect = hero.rectFromGameObject();
+    if (intersectRect(heroRect, boss.rectFromGameObject())) {
+      eventEmitter.emit(Messages.COLLISION_ENEMY_HERO, { boss });
+    }
+  })
+
+  boss.forEach((b) => {
+    lasers.forEach((l) => {
+      if (intersectRect(l.rectFromGameObject(), b.rectFromGameObject())) {
+        b.takeDamage(); // 보스 체력 감소
+        l.dead = true; // 레이저 제거
+      }
+    });
+  });
   lasers.forEach((l) => {
     enemies.forEach((m) => {
       if (intersectRect(l.rectFromGameObject(), m.rectFromGameObject())) {
@@ -354,6 +474,7 @@ function updateGameObjects() {
         });
       }
     });
+  
   });
   // 죽은 객체 제거
   gameObjects = gameObjects.filter(go => !go.dead);
@@ -392,10 +513,24 @@ function drawText(message, x, y) {
   return hero.life <= 0;
  }
 function isEnemiesDead() {
-  const enemies = gameObjects.filter((go) => go.type === "Enemy" && 
-                        !go.dead);
-  return enemies.length === 0;
- }
+  const enemies = gameObjects.filter((go) => go.type === "Enemy" && !go.dead);
+  console.log("Remaining enemies:", enemies.length);
+
+  if (enemies.length === 0) {
+    console.log("Stage cleared! Moving to the next stage...");
+    if (stage < 3) {
+      stage++;
+      console.log("Creating new enemies for stage:", stage);
+      createEnemies(); // 새로운 적 생성
+      
+    } else if (stage % 3==0) {
+      console.log("Creating Boss for the final stage.");
+      createBoss(); // 보스 생성
+    }
+    return true;
+  }
+  return false;
+}
 
 function displayMessage(message, color = "red") {
   ctx.font = "30px Arial";
@@ -465,11 +600,12 @@ window.addEventListener("keyup", (evt) => {
         eventEmitter.emit(Messages.KEY_EVENT_LEFT);
     } else if (evt.key === "ArrowRight") {
         eventEmitter.emit(Messages.KEY_EVENT_RIGHT);
-    } else if(evt.keyCode === 32) {
+    }else if(evt.keyCode === 32) {
       eventEmitter.emit(Messages.KEY_EVENT_SPACE);
     } else if(evt.key === "Enter") {
       eventEmitter.emit(Messages.KEY_EVENT_ENTER);
      }
+     
  });
 
 
@@ -486,26 +622,38 @@ const Messages = {
     KEY_EVENT_ENTER: "KEY_EVENT_ENTER",
  };
 
+
+
 let heroImg, 
   enemyImg, 
   laserImg,
+  bossImg,
+  bossLaserImg,
   canvas, ctx, 
   gameObjects = [], 
   hero, 
   lifeImg,
+  stage =1,
+  moveInterval,
+  keysPressed = {};
+  
   eventEmitter = new EventEmitter();
 
-  let gameLoopId = setInterval(() => {
+let gameLoopId = setInterval(() => {
     // 화면 초기화
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "black";
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     // 게임 객체 그리기
-    drawGameObjects(ctx);
+    
     updateGameObjects();   // 배경과 같은 정적인 요소
+    drawGameObjects(ctx);
     drawPoints();
     drawLife();
-}, 200)
+    drawStage();
+    isEnemiesDead();
+    
+}, 100)
 
 
 window.onload = async() => {
@@ -517,6 +665,8 @@ window.onload = async() => {
   laserImg = await loadTexture("assets/laserRed.png");
   collisionImg = await loadTexture("assets/laserGreenShot.png");
   lifeImg = await loadTexture("assets/life.png");
+  bossImg = await loadTexture("assets/Boss.png");
+  bossLaserImg = await loadTexture("assets/laserGreen.png")
   
   initGame();
  
