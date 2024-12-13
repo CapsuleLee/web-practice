@@ -185,43 +185,7 @@ class SidekickHero extends GameObject {
     this.y = hero.y + 30;  // 주인공 비행선의 y 좌표 + 30 (아래쪽)
 }
 }
-// class Boss extends GameObject {
-//   constructor(x, y) {
-//     super(x, y);
-//     this.width = 500; // 보스 크기
-//     this.height = 100;
-//     this.type = "Boss";
-//     this.health = 5000; // 체력
-//     this.img = bossImg; // 보스 이미지
-//     this.cooldown = 0; // 레이저 발사 쿨다운 초기화
-//     this.moveDirection = Math.random() < 0.5 ? -50 : 50; // 초기 방향 설정
 
-//     // 레이저 발사 설정
-//     setInterval(() => {
-//       if (!this.dead && this.canFire()) {
-//         const laser = new BossLaser(this.x + this.width / 2 - 7, this.y + this.height);
-//         gameObjects.push(laser); // 보스 레이저 추가
-//         this.cooldown = 3000; // 1초 쿨다운
-//         setTimeout(() => (this.cooldown = 0), this.cooldown);
-//       }
-//     }, 3000); // 1초마다 발사 시도
-//   }
-
-//   // 체력 감소 메서드
-//   takeDamage() {
-//     this.health -= 10;
-//     if (this.health <= 0) {
-//       this.dead = true; // 체력이 0이 되면 파괴
-//       eventEmitter.emit(Messages.GAME_END_WIN); // 게임 승리 이벤트 발생
-//     }
-//   }
-
-//   // 레이저 발사 가능 여부 확인
-//   canFire() {
-//     return this.cooldown === 0; // 쿨타임이 0이면 발사 가능
-//   }
-  
-// }
 class Boss extends GameObject {
   constructor(x, y) {
     super(x, y);
