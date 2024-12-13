@@ -185,41 +185,89 @@ class SidekickHero extends GameObject {
     this.y = hero.y + 30;  // 주인공 비행선의 y 좌표 + 30 (아래쪽)
 }
 }
+// class Boss extends GameObject {
+//   constructor(x, y) {
+//     super(x, y);
+//     this.width = 500; // 보스 크기
+//     this.height = 100;
+//     this.type = "Boss";
+//     this.health = 5000; // 체력
+//     this.img = bossImg; // 보스 이미지
+//     this.cooldown = 0; // 레이저 발사 쿨다운 초기화
+//     this.moveDirection = Math.random() < 0.5 ? -50 : 50; // 초기 방향 설정
+
+//     // 레이저 발사 설정
+//     setInterval(() => {
+//       if (!this.dead && this.canFire()) {
+//         const laser = new BossLaser(this.x + this.width / 2 - 7, this.y + this.height);
+//         gameObjects.push(laser); // 보스 레이저 추가
+//         this.cooldown = 3000; // 1초 쿨다운
+//         setTimeout(() => (this.cooldown = 0), this.cooldown);
+//       }
+//     }, 3000); // 1초마다 발사 시도
+//   }
+
+//   // 체력 감소 메서드
+//   takeDamage() {
+//     this.health -= 10;
+//     if (this.health <= 0) {
+//       this.dead = true; // 체력이 0이 되면 파괴
+//       eventEmitter.emit(Messages.GAME_END_WIN); // 게임 승리 이벤트 발생
+//     }
+//   }
+
+//   // 레이저 발사 가능 여부 확인
+//   canFire() {
+//     return this.cooldown === 0; // 쿨타임이 0이면 발사 가능
+//   }
+  
+// }
 class Boss extends GameObject {
   constructor(x, y) {
     super(x, y);
     this.width = 500; // 보스 크기
     this.height = 100;
     this.type = "Boss";
-    this.health = 50; // 체력
+    this.health = 5000; // 체력
     this.img = bossImg; // 보스 이미지
     this.cooldown = 0; // 레이저 발사 쿨다운 초기화
-    this.moveDirection = Math.random() < 0.5 ? -1 : 1; // 초기 방향 설정
-
-    // 좌우 이동 설정
-    setInterval(() => {
-      if (!this.dead) {
-        this.x += this.moveDirection * 10; // 좌우 이동
-        if (this.x <= 0 || this.x >= canvas.width - this.width) {
-          this.moveDirection *= -1; // 방향 반전
-        }
-      }
-    }, 100); // 100ms마다 이동
+    this.moveDirection = Math.random() < 0.5 ? -1 : 1; // 초기 방향 설정 (-1: 왼쪽, 1: 오른쪽)
 
     // 레이저 발사 설정
     setInterval(() => {
       if (!this.dead && this.canFire()) {
         const laser = new BossLaser(this.x + this.width / 2 - 7, this.y + this.height);
         gameObjects.push(laser); // 보스 레이저 추가
-        this.cooldown = 1000; // 1초 쿨다운
-        setTimeout(() => (this.cooldown = 0), this.cooldown);
+        this.cooldown = Math.random()*100; // 3초 쿨다운
+        setTimeout(() => (this.cooldown = 0), 1000);
       }
-    }, 1000); // 1초마다 발사 시도
+    }, this.cooldown);
+
+    // 이동 로직 설정 (setInterval 사용)
+    this.initMovement();
+  }
+
+  // Boss 이동 초기화
+  initMovement() {
+    const MOVE_SPEED = 10; // 이동 속도
+    const MOVE_INTERVAL = 100; // 이동 주기(ms)
+
+    setInterval(() => {
+      if (this.dead) return; // Boss가 죽었으면 이동하지 않음
+
+      // 이동
+      this.x += this.moveDirection * MOVE_SPEED;
+
+      // 화면 경계를 벗어나면 방향 반전
+      if (this.x <= 0 || this.x >= canvas.width - this.width) {
+        this.moveDirection *= -1; // 방향 반전
+      }
+    }, MOVE_INTERVAL);
   }
 
   // 체력 감소 메서드
   takeDamage() {
-    this.health -= 1;
+    this.health -= 10;
     if (this.health <= 0) {
       this.dead = true; // 체력이 0이 되면 파괴
       eventEmitter.emit(Messages.GAME_END_WIN); // 게임 승리 이벤트 발생
@@ -235,11 +283,11 @@ class Boss extends GameObject {
 class BossLaser extends GameObject {
   constructor(x, y) {
     super(x, y);
-    this.width = 15; // 보스 레이저 폭
-    this.height = 45; // 보스 레이저 높이
+    this.width = 30; // 보스 레이저 폭
+    this.height = 70; // 보스 레이저 높이
     this.type = "BossLaser"; // 보스 레이저 타입
     this.img = bossLaserImg; // 보스 레이저 이미지
-    this.speed = 10; // 레이저 이동 속도
+    this.speed = 5; // 레이저 이동 속도
 
     // 레이저가 아래로 이동
     let id = setInterval(() => {
@@ -254,6 +302,10 @@ class BossLaser extends GameObject {
 }
 
 function createBoss() {
+  if (gameObjects.some((go) => go.type === "Boss")) {
+    console.log("Boss already exists, skipping creation.");
+    return;
+  }
   const boss = new Boss(canvas.width / 2 - 100, 50);
   gameObjects.push(boss);
 }
@@ -275,21 +327,6 @@ function loadTexture(path) {
     })
 }
 
-
-// function createEnemies() { //week13주차꺼
-//   const MONSTER_TOTAL = 5;
-//   const MONSTER_WIDTH = MONSTER_TOTAL * 98;
-//   const START_X = (canvas.width - MONSTER_WIDTH) / 2;
-//   const STOP_X = START_X + MONSTER_WIDTH;
-//   for (let x = START_X; x < STOP_X; x += 98) {
-//     for (let y = 0; y < 50 * 5; y += 50) {
-//       const enemy = new Enemy(x, y);
-//       enemy.img = enemyImg;
-//       gameObjects.push(enemy);
-//     }
-//   }
-//   console.log("Enemies created:", gameObjects.filter(go => go.type === "Enemy").length);
-//  }
 function createEnemies() {
   const MONSTER_TOTAL = Math.min(5 + stage, 10); // 스테이지별로 적 수 증가
   const MONSTER_SPEED = 5 + stage; // 스테이지별 속도 증가
@@ -359,13 +396,8 @@ function createHero() {
 function initGame() {
     
     createHero();
-    if (stage%3==0){
-      
-      createBoss();
-    } else{
-      createEnemies();
-     
-    }
+    createEnemies();
+
     window.addEventListener("keydown", (event) => {
       keysPressed[event.key] = true;
   });
@@ -432,7 +464,8 @@ function updateGameObjects() {
   const enemies = gameObjects.filter(go => go.type === 'Enemy');
   const lasers = gameObjects.filter((go) => go.type === "Laser");
   const boss = gameObjects.filter((go) => go.type === "Boss");
-
+  const bossLasers = gameObjects.filter((go) => go.type === "BossLaser");
+  
   gameObjects.forEach(go => {
     if (go.type === 'sidekick1') {
         go.followHeroRight(hero);  // 각 보조 비행선은 주인공을 따라가게 됩니다.
@@ -448,12 +481,6 @@ function updateGameObjects() {
     const heroRect = hero.rectFromGameObject();
     if (intersectRect(heroRect, enemy.rectFromGameObject())) {
       eventEmitter.emit(Messages.COLLISION_ENEMY_HERO, { enemy });
-    }
-  })
-  boss.forEach(boss=>{
-    const heroRect = hero.rectFromGameObject();
-    if (intersectRect(heroRect, boss.rectFromGameObject())) {
-      eventEmitter.emit(Messages.COLLISION_ENEMY_HERO, { boss });
     }
   })
 
@@ -476,6 +503,17 @@ function updateGameObjects() {
     });
   
   });
+  bossLasers.forEach((laser) => {
+    const heroRect = hero.rectFromGameObject();
+    if (intersectRect(heroRect, laser.rectFromGameObject())) {
+      laser.dead = true; // 레이저 제거
+      hero.decrementLife(); // 히어로 체력 감소
+      if (isHeroDead()) {
+        eventEmitter.emit(Messages.GAME_END_LOSS); // 히어로가 죽으면 게임 종료
+      }
+    }
+  });
+
   // 죽은 객체 제거
   gameObjects = gameObjects.filter(go => !go.dead);
   
@@ -574,6 +612,34 @@ function resetGame() {
       }, 100);
     }
 }
+
+function drawBossHealthBar(ctx, boss) {
+  if (!boss || boss.health <= 0) return;
+
+  const barWidth = 400; // 체력바 전체 너비
+  const barHeight = 20; // 체력바 높이
+  const barX = (canvas.width - barWidth) / 2; // 체력바 위치 (화면 중앙)
+  const barY = 20; // 체력바의 Y 좌표
+
+  const healthRatio = Math.max(0, boss.health / 5000);
+  const currentBarWidth = barWidth * healthRatio; // 현재 체력에 따른 너비
+
+  // 체력바 배경
+  ctx.fillStyle = "gray";
+  ctx.fillRect(barX, barY, barWidth, barHeight);
+
+  // 현재 체력 표시
+  ctx.fillStyle = "red";
+  ctx.fillRect(barX, barY, currentBarWidth, barHeight);
+
+  // 체력바 테두리
+  ctx.strokeStyle = "black";
+  ctx.strokeRect(barX, barY, barWidth, barHeight);
+
+  // 체력 아이콘 (축소된 보스 이미지)
+  const iconSize = 30; // 아이콘 크기
+  ctx.drawImage(bossImg, barX - iconSize - 10, barY - 5, iconSize, iconSize); // 체력바 왼쪽에 표시
+}
    
 let onKeyDown = function (e) {
   console.log(e.keyCode);
@@ -608,7 +674,6 @@ window.addEventListener("keyup", (evt) => {
      
  });
 
-
 const Messages = {
     KEY_EVENT_UP: "KEY_EVENT_UP",
     KEY_EVENT_DOWN: "KEY_EVENT_DOWN",
@@ -621,8 +686,6 @@ const Messages = {
     GAME_END_WIN: "GAME_END_WIN",
     KEY_EVENT_ENTER: "KEY_EVENT_ENTER",
  };
-
-
 
 let heroImg, 
   enemyImg, 
@@ -647,6 +710,9 @@ let gameLoopId = setInterval(() => {
     // 게임 객체 그리기
     
     updateGameObjects();   // 배경과 같은 정적인 요소
+    const boss = gameObjects.find(go => go.type === "Boss");
+    
+    drawBossHealthBar(ctx, boss);
     drawGameObjects(ctx);
     drawPoints();
     drawLife();
@@ -669,6 +735,6 @@ window.onload = async() => {
   bossLaserImg = await loadTexture("assets/laserGreen.png")
   
   initGame();
- 
+  
 };
 
